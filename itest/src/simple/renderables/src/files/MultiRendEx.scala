@@ -1,4 +1,4 @@
-package ex2
+package files.ex2
 
 import java.nio.file.Paths
 import scala.jdk.CollectionConverters._
@@ -18,7 +18,7 @@ object MultiRendEx extends MultiRenderable {
 class MultiRendExTemplate(num: Int) extends Renderable {
 
   override def relPath =
-    Paths.get(s"multi_rend_ex_${num}.txt")
+    Paths.get(s"files/multi_rend_ex_${num}.txt")
 
   override def render =
     s"MultiRendEx content content ${num}"

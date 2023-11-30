@@ -6,7 +6,7 @@ import ba.sake.hepek.core.Renderable
 object RendEx extends Renderable {
 
   override def relPath =
-    Paths.get("rend_ex.txt")
+    Paths.get("files/rend_ex.txt")
 
   override def render =
     "RendEx content"

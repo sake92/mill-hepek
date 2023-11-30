@@ -22,29 +22,23 @@ trait MillHepekModule extends JavaModule {
   }
 
   def hepek = T {
-
-    // generate hepek files
     // scala ~requires all classes/objects to have a package
     // so we arbitrarily choose the "files" toplevel package..
+
+    // generate hepek files
     val hepekGenerateFolder = hepekGenerate().path
-    val hepekGenerateFilesFolder = os
-      .list(hepekGenerateFolder)
-      .find(f =>
-        os.isDir(f) && f
-          .relativeTo(hepekGenerateFolder)
-          .startsWith(os.RelPath("files"))
-      )
-      .toSeq
+    val hepekGenerateFilesFolder =
+      os.list(hepekGenerateFolder)
+        .find(f => os.isDir(f) && f.relativeTo(hepekGenerateFolder).startsWith(os.RelPath("files")))
+        .toSeq
 
     // collect resources/public folders
     val publicFolders = resources()
-      .filter(r => os.exists(r.path))
-      .flatMap(r =>
+      .filter(r => os.isDir(r.path) && os.exists(r.path))
+      .flatMap { r =>
         os.list(r.path)
-          .filter(f =>
-            os.isDir(f) && f.relativeTo(r.path).startsWith(os.RelPath("public"))
-          )
-      )
+          .filter(f => os.isDir(f) && f.relativeTo(r.path).startsWith(os.RelPath("public")))
+      }
 
     val destFolder = millSourcePath / "hepek_output"
     val allFolders = publicFolders ++ hepekGenerateFilesFolder
