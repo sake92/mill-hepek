@@ -22,8 +22,48 @@ trait MillHepekModule extends JavaModule {
   }
 
   def hepek = T {
+
+    // generate hepek files
+    // scala ~requires all classes/objects to have a package
+    // so we arbitrarily choose the "files" toplevel package..
+    val hepekGenerateFolder = hepekGenerate().path
+    val hepekGenerateFilesFolder = os
+      .list(hepekGenerateFolder)
+      .find(f =>
+        os.isDir(f) && f
+          .relativeTo(hepekGenerateFolder)
+          .startsWith(os.RelPath("files"))
+      )
+      .toSeq
+
+    // collect resources/public folders
+    val publicFolders = resources()
+      .filter(r => os.exists(r.path))
+      .flatMap(r =>
+        os.list(r.path)
+          .filter(f =>
+            os.isDir(f) && f.relativeTo(r.path).startsWith(os.RelPath("public"))
+          )
+      )
+
+    val destFolder = millSourcePath / "hepek_output"
+    val allFolders = publicFolders ++ hepekGenerateFilesFolder
+    allFolders.foreach { folder =>
+      os.copy(
+        folder,
+        destFolder,
+        createFolders = true,
+        replaceExisting = true,
+        mergeFolders = true
+      )
+    }
+    PathRef(destFolder)
+  }
+
+  // T.task should be "private" for this module
+  def hepekGenerate = T.task {
     val log = T.ctx().log
-    val destDir = T.dest
+    val destFolder = T.dest
 
     // deps/JARs + user classes
     val fullClasspath =
@@ -65,7 +105,7 @@ trait MillHepekModule extends JavaModule {
             objClazz.getMethod("render").invoke(null).asInstanceOf[String]
           val relPath =
             objClazz.getMethod("relPath").invoke(null).asInstanceOf[JPath]
-          writeRenderableObject(className, destDir, relPath, content, log)
+          writeRenderableObject(className, destFolder, relPath, content, log)
         } else if (isSuperclassOf(multiRenderableClazz, clazz)) {
           val objClazz =
             classloader.loadClass(className.dropRight(1)) // without $ at end
@@ -78,7 +118,7 @@ trait MillHepekModule extends JavaModule {
               renderableClazz.getMethod("render").invoke(r).asInstanceOf[String]
             val relPath =
               renderableClazz.getMethod("relPath").invoke(r).asInstanceOf[JPath]
-            writeRenderableObject(className, destDir, relPath, content, log)
+            writeRenderableObject(className, destFolder, relPath, content, log)
           }
         }
       }
@@ -91,13 +131,13 @@ trait MillHepekModule extends JavaModule {
 
   private def writeRenderableObject(
       className: String,
-      destDir: os.Path,
+      destFolder: os.Path,
       relPath: JPath,
       content: String,
       log: Logger
   ): Unit = {
-    val finalPath = destDir / os.RelPath(relPath)
-    log.debug(s"Rendering class '${className}' to '${finalPath}'")
+    val finalPath = destFolder / os.RelPath(relPath)
+    log.debug(s"Rendering '${className}' to '${finalPath}'")
     os.write(finalPath, content, createFolders = true)
   }
 

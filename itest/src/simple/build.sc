@@ -2,7 +2,6 @@ import $ivy.`org.scalameta::munit:0.7.29`
 import $file.plugins
 
 import mill._, scalalib._
-import mill.eval.Evaluator
 import munit.Assertions._
 import ba.sake.millhepek._
 
@@ -17,7 +16,7 @@ object renderables extends MillHepekModule with ScalaModule {
 def verify() = T.command {
   val res = renderables.hepek()
   val renderedFiles = os.walk(res.path).filter(os.isFile)
-  assertEquals(renderedFiles.size, 3)
+  assertEquals(renderedFiles.size, 4)
 
   // Renderable
   val rendExFile =
@@ -38,4 +37,14 @@ def verify() = T.command {
       .get
   val multiRendExFile2Content = os.read(multiRendExFile2)
   assertEquals(multiRendExFile2Content, "MultiRendEx content content 2")
+
+  // resource files copied
+  val resourceScriptFile = renderedFiles
+    .find(_.relativeTo(res.path).startsWith(os.RelPath("scripts") / "main.js"))
+    .get
+  val resourceScriptFileContent = os.read(resourceScriptFile)
+  assertEquals(
+    resourceScriptFileContent,
+    """ console.log("Hello World!") """.trim
+  )
 }
