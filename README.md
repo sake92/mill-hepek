@@ -13,8 +13,12 @@ Add the following to your `build.sc`:
 
 ```scala
 import $ivy.`ba.sake::mill-hepek::0.0.1`
+import mill._
+import mill.scalalib._
+import ba.sake.millhepek.MillHepekModule
 
 object site extends MillHepekModule with ScalaModule {
+  def scalaVersion = ...
 }
 ```
 
