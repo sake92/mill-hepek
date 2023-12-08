@@ -8,6 +8,10 @@ import ba.sake.millhepek._
 object renderables extends MillHepekModule with ScalaModule {
   def scalaVersion = "3.3.1"
 
+  def ivyDeps = Agg(
+    ivy"ba.sake::hepek:0.22.0"
+  )
+
   object test extends ScalaTests with TestModule.Munit {
     def ivyDeps = Agg(ivy"org.scalameta::munit:0.7.29")
   }
@@ -16,7 +20,7 @@ object renderables extends MillHepekModule with ScalaModule {
 def verify() = T.command {
   val res = renderables.hepek()
   val renderedFiles = os.walk(res.path).filter(os.isFile)
-  assertEquals(renderedFiles.size, 4)
+  assertEquals(renderedFiles.size, 5)
 
   // Renderable
   val rendExFile =

@@ -37,7 +37,7 @@ trait MillHepekModule extends JavaModule {
       .filter(r => os.isDir(r.path) && os.exists(r.path))
       .flatMap { r =>
         os.list(r.path)
-          .filter(f => os.isDir(f) && f.relativeTo(r.path).startsWith(os.RelPath("public")))
+          .filter(f => os.isDir(f) && f.relativeTo(r.path) == os.RelPath("public"))
       }
 
     val destFolder = millSourcePath / "hepek_output"
@@ -133,6 +133,44 @@ trait MillHepekModule extends JavaModule {
     val finalPath = destFolder / os.RelPath(relPath)
     log.debug(s"Rendering '${className}' to '${finalPath}'")
     os.write(finalPath, content, createFolders = true)
+  }
+
+  // generate handy resources
+  override def generatedSources = T {
+    val dest = T.dest
+    val publicFolders = resources()
+      .filter(r => os.isDir(r.path) && os.exists(r.path))
+      .flatMap { r =>
+        os.list(r.path)
+          .filter(f => os.isDir(f) && f.relativeTo(r.path) == os.RelPath("public"))
+      }
+    
+    var res = ""
+    var indent = 0
+    def writeResource(path: os.Path, parentPath: String): Unit = {
+      val fileName = path.wrapped.getFileName.toString
+      val pathName = if (parentPath.isEmpty) fileName else s"${parentPath}/${fileName}"
+      if (os.isDir(path)) {
+        res += (" " * indent) + s"object ${fileName} {\n"
+        indent += 2
+        os.list(path).foreach(p => writeResource(p, pathName))
+        indent -= 2
+        res += (" " * indent) + "}\n\n"
+      } else {
+        res += (" " * indent) + s"""val `${fileName}` = Resource("${pathName}")\n"""
+      }
+    }
+    publicFolders.headOption.toSeq.flatMap(p => os.list(p)).foreach(p => writeResource(p, ""))
+
+    os.write(
+      dest / "public_resources.scala",
+      s"""package files
+         |import ba.sake.hepek.Resource
+         |
+         |${res}
+         |""".stripMargin
+    )
+    super.generatedSources() ++ Seq(PathRef(T.dest))
   }
 
 }
