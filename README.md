@@ -12,7 +12,7 @@ See also [**hepek**](https://github.com/sake92/hepek), static content generator 
 Add the following to your `build.sc`:
 
 ```scala
-import $ivy.`ba.sake::mill-hepek::0.0.1`
+import $ivy.`ba.sake::mill-hepek::0.0.2`
 import mill._
 import mill.scalalib._
 import ba.sake.millhepek.MillHepekModule
