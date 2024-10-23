@@ -28,11 +28,6 @@ jobs:
       with:
         distribution: 'temurin'
         java-version: ${{ matrix.java }}
-
-    - name: Compile
-      run:
-        ./mill -i __.compile
-
     - name: Test
       run:
-        ./mill -i --debug itest
+        ./mill -i --debug __.test

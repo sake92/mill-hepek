@@ -1,0 +1,60 @@
+package build
+
+import $ivy.`com.lihaoyi::mill-contrib-sonatypecentral:`
+
+import mill._
+import mill.scalalib._
+import mill.scalalib.scalafmt._
+import mill.scalalib.publish._
+import mill.main.BuildInfo.millVersion
+import mill.contrib.sonatypecentral.SonatypeCentralPublishModule
+
+object plugin extends ScalaModule with ScalafmtModule with SonatypeCentralPublishModule {
+
+  def scalaVersion = "2.13.15"
+  def scalacOptions = Seq("-Ywarn-unused", "-deprecation")
+  def ivyDeps = Agg(ivy"com.lihaoyi:mill-dist:${millVersion}")
+
+  def artifactName = "mill-hepek"
+  def publishVersion = "0.0.3"
+  def platformSuffix = "_mill" + mill.main.BuildInfo.millBinPlatform
+  def pomSettings = PomSettings(
+    description = "Mill plugin for Hepek static site generator",
+    organization = "ba.sake",
+    url = "https://github.com/sake92/mill-hepek",
+    licenses = Seq(License.`Apache-2.0`),
+    versionControl =
+      VersionControl.github(owner = "sake92", repo = "mill-hepek"),
+    developers =
+      Seq(Developer("sake92", "Sakib Hadziavdic", "https://github.com/sake92"))
+  )
+
+  object test extends ScalaTests with TestModule.Munit {
+    def ivyDeps = Agg(
+      ivy"com.lihaoyi::mill-testkit:$millVersion",
+      ivy"org.scalameta::munit:1.0.2"
+    )
+    def forkEnv = Task {
+        val millAssemblyPath = millExecutable.assembly().path
+        val millExecPath =
+            if (scala.util.Properties.isWin) {
+                val batPath = millAssemblyPath / os.up / (millAssemblyPath.baseName + ".bat")
+                os.copy.over(millAssemblyPath, batPath)
+                batPath.toString
+            }
+            else millAssemblyPath.toString
+      Map("MILL_EXECUTABLE_PATH" -> millExecPath)
+    }
+
+    object millExecutable extends JavaModule {
+      def ivyDeps = Agg(ivy"com.lihaoyi:mill-dist:${millVersion}")
+      def mainClass = Some("mill.runner.client.MillClientMain")
+      def resources = Task {
+        val p = Task.dest / "mill/local-test-overrides" / s"ba.sake-${plugin.artifactId()}"
+        os.write(p, plugin.localClasspath().map(_.path).mkString("\n"), createFolders = true)
+        Seq(PathRef(Task.dest))
+      }
+    }
+  }
+
+}

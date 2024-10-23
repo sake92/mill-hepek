@@ -15,15 +15,17 @@ trait MillHepekModule extends JavaModule {
   private val RenderableFQN = "ba.sake.hepek.core.Renderable"
   private val MultiRenderableFQN = "ba.sake.hepek.core.MultiRenderable"
 
-  override def ivyDeps: T[Agg[Dep]] = T {
+  override def ivyDeps = Task {
     super.ivyDeps() ++ Agg(
       ivy"ba.sake:hepek-core:0.2.0"
     )
   }
 
-  def hepek = T {
+  def hepek = Task {
     // scala ~requires all classes/objects to have a package
     // so we arbitrarily choose the "files" toplevel package..
+
+    Task.log.info("WTFFFFFFFFFFFFFFFFF")
 
     // generate hepek files
     val hepekGenerateFolder = hepekGenerate().path
@@ -54,10 +56,9 @@ trait MillHepekModule extends JavaModule {
     PathRef(destFolder)
   }
 
-  // T.task should be "private" for this module
-  def hepekGenerate = T.task {
-    val log = T.ctx().log
-    val destFolder = T.dest
+  private def hepekGenerate: Task[PathRef] = Task.Anon {
+    val log = Task.log
+    val destFolder = Task.dest
 
     // deps/JARs + user classes
     val fullClasspath =
@@ -117,7 +118,7 @@ trait MillHepekModule extends JavaModule {
         }
       }
     }
-    PathRef(T.dest)
+    PathRef(Task.dest)
   }
 
   private def isSuperclassOf(clazzParent: Class[_], clazz: Class[_]): Boolean =
@@ -136,8 +137,8 @@ trait MillHepekModule extends JavaModule {
   }
 
   // generate handy resources
-  override def generatedSources = T {
-    val dest = T.dest
+  override def generatedSources: T[Seq[PathRef]] = Task {
+    val dest = Task.dest
     val publicFolders = resources()
       .filter(r => os.isDir(r.path) && os.exists(r.path))
       .flatMap { r =>
@@ -170,7 +171,7 @@ trait MillHepekModule extends JavaModule {
          |${res}
          |""".stripMargin
     )
-    super.generatedSources() ++ Seq(PathRef(T.dest))
+    super.generatedSources() ++ Seq(PathRef(Task.dest))
   }
 
 }
