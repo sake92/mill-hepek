@@ -25,8 +25,6 @@ trait MillHepekModule extends JavaModule {
     // scala ~requires all classes/objects to have a package
     // so we arbitrarily choose the "files" toplevel package..
 
-    Task.log.info("WTFFFFFFFFFFFFFFFFF")
-
     // generate hepek files
     val hepekGenerateFolder = hepekGenerate().path
     val hepekGenerateFilesFolder =
