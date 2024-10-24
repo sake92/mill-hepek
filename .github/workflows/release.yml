@@ -1,9 +1,8 @@
 name: Release
 on:
   push:
-    branches:
-      - main
-    tags: ["*"]
+    tags:
+      - "*"
 
 env:
   PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
