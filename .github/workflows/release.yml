@@ -4,6 +4,13 @@ on:
     branches:
       - main
     tags: ["*"]
+
+env:
+  PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+  PGP_SECRET: ${{ secrets.PGP_SECRET }}
+  SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+  SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+
 jobs:
   publish:
     runs-on: ubuntu-latest
@@ -22,5 +29,10 @@ jobs:
           passphrase: ${{ secrets.PGP_PASSPHRASE }}
       - name: Publish
         run: >
-          ./mill -i mill.contrib.sonatypecentral.SonatypeCentralPublishModule/publishAll --username ${{ secrets.SONATYPE_USERNAME }} --password ${{ secrets.SONATYPE_PASSWORD }} \
-            --gpgArgs --passphrase=${{ secrets.PGP_PASSPHRASE }},--no-tty,--pinentry-mode,loopback,--batch,--yes,-a,-b --publishArtifacts __.publishArtifacts
+          ./mill -i mill.scalalib.PublishModule/publishAll \
+              --gpgArgs --passphrase=$PGP_PASSPHRASE,--no-tty,--pinentry-mode,loopback,--batch,--yes,-a,-b \
+              --publishArtifacts __.publishArtifacts \
+              --readTimeout 600000 \
+              --awaitTimeout 600000 \
+              --release true \
+              --signed true
