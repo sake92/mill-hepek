@@ -1,0 +1,16 @@
+package build
+
+import $ivy.`ba.sake::mill-hepek::0.0.3`
+
+import mill._, scalalib._
+import ba.sake.millhepek._
+
+object `package` extends RootModule with ScalaModule with MillHepekModule {
+
+  def scalaVersion = "3.3.4"
+
+  def ivyDeps = Agg(
+    ivy"ba.sake::hepek:0.22.0"
+  )
+
+}
