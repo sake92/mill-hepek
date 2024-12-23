@@ -3,9 +3,9 @@
 
 # RELEASE
 $VERSION="x.y.z"
-git commit -am "Release $VERSION"
+git commit --allow-empty -m "Release $VERSION"
 git tag -a $VERSION -m "Release $VERSION"
-git push origin main --tags
+git push --atomic origin main --tags
 
 
 # prepare for NEXT version
