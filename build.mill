@@ -1,13 +1,17 @@
 package build
 
 import $ivy.`com.lihaoyi::mill-contrib-sonatypecentral:`
+import $ivy.`com.lihaoyi::mill-contrib-versionfile:`
 
 import mill._
 import mill.scalalib._
 import mill.scalalib.scalafmt._
 import mill.scalalib.publish._
 import mill.main.BuildInfo.millVersion
+import mill.contrib.versionfile.VersionFileModule
 import mill.contrib.sonatypecentral.SonatypeCentralPublishModule
+
+object versionFile extends VersionFileModule
 
 object plugin extends ScalaModule with ScalafmtModule with SonatypeCentralPublishModule {
 
@@ -16,7 +20,7 @@ object plugin extends ScalaModule with ScalafmtModule with SonatypeCentralPublis
   def ivyDeps = Agg(ivy"com.lihaoyi:mill-dist:${millVersion}")
 
   def artifactName = "mill-hepek"
-  def publishVersion = "0.0.3"
+  def publishVersion = versionFile.currentVersion().toString
   def platformSuffix = "_mill" + mill.main.BuildInfo.millBinPlatform
   def pomSettings = PomSettings(
     description = "Mill plugin for Hepek static site generator",
