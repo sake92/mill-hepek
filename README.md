@@ -58,7 +58,6 @@ with text `Some text`.
 ---
 
 ## Examples
-- [my blog (full-blown example)](https://github.com/sake92/sake-ba-source) rendered @ [blog.sake.ba](https://blog.sake.ba)
 - [examples](https://github.com/sake92/hepek-examples)
 - ["Philosophy"](https://dev.to/sake_92/render-static-site-from-scala-code)
 
