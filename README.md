@@ -2,7 +2,7 @@
 
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/ba.sake/mill-hepek/badge.svg)](https://maven-badges.herokuapp.com/maven-central/ba.sake/mill-hepek)  
 
-An Mill plugin for writing Scala `object`s to files.  
+Mill plugin for writing Scala `object`s to files.  
 See also [**hepek**](https://github.com/sake92/hepek), static content generator that builds upon this plugin.
 
 
@@ -22,14 +22,15 @@ object site extends MillHepekModule with ScalaModule {
 }
 ```
 
+Then you can run `./mill site.hepek`
+
 
 ## Usage
 
-The main task of mill-hepek is `hepek`.  
-When executed, it will:
+When you run `./mill site.hepek` it will:
+1. write all `object .. extends Renderable` from the `files` package to `site/hepek_output` folder
 1. copy all files from `src/resources/public` to `hepek_output` folder
-1. write all `object .. extends Renderable` from the `files` package to `hepek_output` folder
-1. write accessors for `src/resources/public` files, so you don't have to type it, or make mistakes
+1. write static accessors for `src/resources/public` files, so you don't have to type them with strings and make silly mistakes
 
 
 Minimal example:
@@ -58,13 +59,14 @@ with text `Some text`.
 ---
 
 ## Examples
+- [sake.ba website source]([https://github.com/sake92/hepek-examples](https://github.com/sake92/sake-ba-source))
 - [examples](https://github.com/sake92/hepek-examples)
 - ["Philosophy"](https://dev.to/sake_92/render-static-site-from-scala-code)
 
 ---
 
 ## Fun fact
-I think that this is the first project that tried this approach, namely, using first-class Scala `object`s for this kind of stuff.  
+I think that this is the first project that tried this approach, using first-class Scala `object`s for this kind of stuff.  
 Correct me if I'm wrong... ^_^
 
 ---
